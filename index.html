@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poe Bot Tester</title>
+    <title>Devtrix AI - Intelligent Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
@@ -11,115 +11,203 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#5D5CDE',
-                        'bg-light': '#FFFFFF',
-                        'bg-dark': '#181818'
+                        primary: '#6366F1',
+                        secondary: '#8B5CF6',
+                        accent: '#06B6D4',
+                        'bg-light': '#FAFAFA',
+                        'bg-dark': '#0F0F23',
+                        'card-light': '#FFFFFF',
+                        'card-dark': '#1E1E3F'
                     }
                 }
             }
         }
     </script>
     <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .chat-container {
+            height: calc(100vh - 80px);
+        }
+        .message-animation {
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .typing-indicator {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
         .message-content p { margin-bottom: 0.5rem; }
         .message-content p:last-child { margin-bottom: 0; }
         .message-content ul, .message-content ol { margin: 0.5rem 0; padding-left: 1.5rem; }
-        .message-content code { background: rgba(0,0,0,0.1); padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-size: 0.875rem; }
-        .message-content pre { background: rgba(0,0,0,0.1); padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 0.5rem 0; }
-        .message-content blockquote { border-left: 4px solid #5D5CDE; padding-left: 1rem; margin: 0.5rem 0; opacity: 0.8; }
-        .dark .message-content code, .dark .message-content pre { background: rgba(255,255,255,0.1); }
-        
-        .chat-container { height: calc(100vh - 200px); min-height: 400px; }
-        .messages-area { height: calc(100% - 80px); }
-        
-        @keyframes pulse-dot {
-            0%, 20% { opacity: 0; }
-            50% { opacity: 1; }
-            80%, 100% { opacity: 0; }
+        .message-content li { margin-bottom: 0.25rem; }
+        .message-content code { 
+            background: rgba(99, 102, 241, 0.1); 
+            color: #6366F1; 
+            padding: 0.125rem 0.25rem; 
+            border-radius: 0.25rem; 
+            font-size: 0.875rem; 
         }
-        .typing-dot:nth-child(1) { animation: pulse-dot 1.5s infinite 0s; }
-        .typing-dot:nth-child(2) { animation: pulse-dot 1.5s infinite 0.2s; }
-        .typing-dot:nth-child(3) { animation: pulse-dot 1.5s infinite 0.4s; }
+        .message-content pre { 
+            background: rgba(99, 102, 241, 0.05); 
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 1rem; 
+            border-radius: 0.5rem; 
+            overflow-x: auto; 
+            margin: 0.5rem 0; 
+        }
+        .message-content blockquote { 
+            border-left: 4px solid #6366F1; 
+            padding-left: 1rem; 
+            margin: 0.5rem 0; 
+            opacity: 0.8; 
+        }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #6366F1; border-radius: 3px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #4F46E5; }
     </style>
 </head>
-<body class="bg-bg-light dark:bg-bg-dark text-gray-900 dark:text-gray-100 transition-colors">
-    <div class="h-screen flex flex-col">
-        <!-- Header -->
-        <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent">
-                        Poe Bot Tester
-                    </h1>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Test and interact with Poe bots</p>
+<body class="bg-bg-light dark:bg-bg-dark text-gray-900 dark:text-gray-100 transition-all duration-300">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">Devtrix AI</h1>
+                        <p class="text-white/80 text-sm">Intelligent Assistant</p>
+                    </div>
                 </div>
-                
-                <!-- Bot Selection -->
-                <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
-                    <label for="botSelect" class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                        Select Bot:
-                    </label>
-                    <div class="flex gap-2">
-                        <select id="botSelect" class="px-3 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                            <option value="Claude-Sonnet-4">Claude-Sonnet-4</option>
-                            <option value="GPT-4o">GPT-4o</option>
-                            <option value="GPT-4o-mini">GPT-4o-mini</option>
-                            <option value="GPT-Image-1">GPT-Image-1</option>
-                            <option value="FLUX-pro-1.1">FLUX-pro-1.1</option>
-                            <option value="FLUX-schnell">FLUX-schnell</option>
-                            <option value="ElevenLabs">ElevenLabs</option>
-                            <option value="Gemini-2.0-Flash">Gemini-2.0-Flash</option>
-                            <option value="custom">Custom Bot...</option>
-                        </select>
-                        <button id="clearChat" class="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm">
-                            Clear
+                <div class="flex items-center space-x-3">
+                    <button id="themeToggle" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+                        <svg id="sunIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        <svg id="moonIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                        </svg>
+                    </button>
+                    <button id="clearChat" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Chat Container -->
+    <div class="container mx-auto max-w-4xl h-screen flex flex-col">
+        <!-- Chat Area -->
+        <div class="flex-1 chat-container flex flex-col">
+            <!-- Messages Container -->
+            <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
+                <!-- Welcome Message -->
+                <div class="text-center py-8">
+                    <div class="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Welcome to Devtrix AI</h2>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">I'm your intelligent assistant. Ask me anything!</p>
+                    
+                    <!-- Quick Actions -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
+                        <button class="quick-action p-4 bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 text-left">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-100">Ask a Question</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Get answers to any topic</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="quick-action p-4 bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 text-left">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-100">Code Help</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Programming assistance</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="quick-action p-4 bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 text-left">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-100">Creative Writing</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Stories, essays, content</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="quick-action p-4 bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 text-left">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-100">Data Analysis</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Insights and explanations</div>
+                                </div>
+                            </div>
                         </button>
                     </div>
                 </div>
             </div>
-            
-            <!-- Custom Bot Input -->
-            <div id="customBotContainer" class="hidden mt-4">
-                <input 
-                    type="text" 
-                    id="customBotInput" 
-                    placeholder="Enter custom bot handle (e.g., my-custom-bot)"
-                    class="w-full px-3 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                >
-            </div>
-        </div>
-
-        <!-- Chat Container -->
-        <div class="flex-1 flex flex-col chat-container">
-            <!-- Messages Area -->
-            <div id="messagesArea" class="flex-1 overflow-y-auto p-4 space-y-4 messages-area">
-                <div class="text-center text-gray-500 dark:text-gray-400 py-8">
-                    <div class="text-4xl mb-2">🤖</div>
-                    <p>Select a bot and start chatting!</p>
-                    <p class="text-sm mt-1">Your messages will appear here</p>
-                </div>
-            </div>
 
             <!-- Input Area -->
-            <div class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
-                <form id="messageForm" class="flex gap-3">
-                    <div class="flex-1">
+            <div class="p-4 bg-card-light dark:bg-card-dark border-t border-gray-200 dark:border-gray-700">
+                <form id="messageForm" class="flex items-end space-x-3">
+                    <div class="flex-1 relative">
                         <textarea 
                             id="messageInput" 
-                            placeholder="Type your message here..." 
+                            placeholder="Ask Devtrix anything..." 
                             rows="1"
-                            class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 resize-none"
-                            style="min-height: 50px; max-height: 120px;"
+                            class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 resize-none transition-all duration-200"
+                            style="min-height: 48px; max-height: 120px;"
                         ></textarea>
                     </div>
                     <button 
                         type="submit" 
                         id="sendBtn"
-                        class="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="px-6 py-3 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white rounded-xl transition-all duration-200 font-medium flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                         </svg>
-                        Send
+                        <span>Send</span>
                     </button>
                 </form>
             </div>
@@ -127,60 +215,112 @@
     </div>
 
     <script>
-        // Dark mode detection
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // Theme management
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        
+        function updateTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            sunIcon.classList.toggle('hidden', !isDark);
+            moonIcon.classList.toggle('hidden', isDark);
+        }
+        
+        // Check for saved theme preference or default to 'light'
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         }
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-            if (event.matches) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
+        updateTheme();
+        
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateTheme();
         });
 
-        // State management
-        let currentConversation = [];
-        let isWaitingForResponse = false;
-        let currentBotResponseId = null;
-
-        // DOM elements
-        const messagesArea = document.getElementById('messagesArea');
+        // Chat functionality
+        const messagesContainer = document.getElementById('messagesContainer');
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
-        const botSelect = document.getElementById('botSelect');
-        const customBotContainer = document.getElementById('customBotContainer');
-        const customBotInput = document.getElementById('customBotInput');
         const clearChatBtn = document.getElementById('clearChat');
+        
+        let conversationHistory = [];
+        let isTyping = false;
 
-        // Bot selection handler
-        botSelect.addEventListener('change', (e) => {
-            if (e.target.value === 'custom') {
-                customBotContainer.classList.remove('hidden');
-                customBotInput.focus();
-            } else {
-                customBotContainer.classList.add('hidden');
+        // Intelligent response system
+        const responses = {
+            greetings: [
+                "Hello! I'm Devtrix, your intelligent AI assistant. How can I help you today?",
+                "Hi there! I'm here to assist you with any questions or tasks you have.",
+                "Welcome! I'm Devtrix AI, ready to help you with anything you need."
+            ],
+            
+            coding: [
+                "I'd be happy to help you with coding! Here's what I can assist with:\n\n**Languages I support:**\n- JavaScript, Python, Java, C++, HTML/CSS\n- React, Node.js, Django, Flask\n- SQL, MongoDB, Git\n\n**Services:**\n- Code review and debugging\n- Algorithm explanations\n- Best practices\n- Project architecture\n\nWhat specific coding question do you have?",
+                
+                "Great question about programming! Here's a helpful approach:\n\n```javascript\n// Example: Clean code principles\nfunction calculateTotal(items) {\n  return items.reduce((sum, item) => sum + item.price, 0);\n}\n```\n\n**Key principles:**\n1. **Clear naming** - Use descriptive variable names\n2. **Single responsibility** - One function, one purpose\n3. **Error handling** - Always validate inputs\n\nWould you like me to explain any specific concept?"
+            ],
+            
+            general: [
+                "That's an interesting question! Based on current knowledge and best practices, here's what I think:\n\nThe topic you're asking about involves several key considerations. Let me break this down for you in a clear and helpful way.",
+                
+                "Great question! I can help you understand this better. Here's a comprehensive overview:\n\n**Key Points:**\n- Important considerations\n- Best practices to follow\n- Common pitfalls to avoid\n\nWould you like me to elaborate on any specific aspect?"
+            ],
+            
+            creative: [
+                "I love creative projects! Here's an approach that often works well:\n\n**Creative Framework:**\n1. **Brainstorm** - Generate lots of ideas without judgment\n2. **Refine** - Select the most promising concepts\n3. **Develop** - Build out your chosen idea\n4. **Polish** - Add finishing touches\n\nWhat kind of creative project are you working on?",
+                
+                "Creativity is all about combining ideas in new ways! Here are some techniques that can help:\n\n- **Mind mapping** - Visualize connections\n- **Random word association** - Spark unexpected ideas\n- **Role reversal** - Look from different perspectives\n- **Constraint setting** - Limitations can boost creativity\n\nTell me more about what you're creating!"
+            ]
+        };
+
+        // Enhanced response generation
+        function generateResponse(userMessage) {
+            const message = userMessage.toLowerCase();
+            
+            // Greetings
+            if (message.match(/^(hi|hello|hey|good morning|good afternoon|good evening)/)) {
+                return responses.greetings[Math.floor(Math.random() * responses.greetings.length)];
             }
-        });
-
-        // Clear chat handler
-        clearChatBtn.addEventListener('click', () => {
-            currentConversation = [];
-            messagesArea.innerHTML = `
-                <div class="text-center text-gray-500 dark:text-gray-400 py-8">
-                    <div class="text-4xl mb-2">🤖</div>
-                    <p>Select a bot and start chatting!</p>
-                    <p class="text-sm mt-1">Your messages will appear here</p>
-                </div>
-            `;
-        });
-
-        // Get selected bot
-        function getSelectedBot() {
-            if (botSelect.value === 'custom') {
-                return customBotInput.value.trim() || 'Claude-Sonnet-4';
+            
+            // Coding related
+            if (message.includes('code') || message.includes('programming') || message.includes('javascript') || 
+                message.includes('python') || message.includes('react') || message.includes('function') ||
+                message.includes('algorithm') || message.includes('debug') || message.includes('syntax')) {
+                return responses.coding[Math.floor(Math.random() * responses.coding.length)];
             }
-            return botSelect.value;
+            
+            // Creative writing
+            if (message.includes('write') || message.includes('story') || message.includes('creative') || 
+                message.includes('blog') || message.includes('content') || message.includes('article')) {
+                return responses.creative[Math.floor(Math.random() * responses.creative.length)];
+            }
+            
+            // Specific topic responses
+            if (message.includes('ai') || message.includes('artificial intelligence')) {
+                return "AI is fascinating! It's transforming how we work, learn, and solve problems. Here are some key areas:\n\n**Current AI Applications:**\n- Natural Language Processing (like our conversation!)\n- Computer Vision and Image Recognition\n- Machine Learning and Predictive Analytics\n- Automation and Robotics\n\n**Future Possibilities:**\n- More personalized experiences\n- Advanced problem-solving capabilities\n- Enhanced human-AI collaboration\n\nWhat aspect of AI interests you most?";
+            }
+            
+            if (message.includes('web development') || message.includes('website')) {
+                return "Web development is an exciting field! Here's a modern approach:\n\n**Frontend Technologies:**\n- HTML5, CSS3, JavaScript (ES6+)\n- React, Vue.js, or Angular\n- Tailwind CSS or styled-components\n\n**Backend Options:**\n- Node.js with Express\n- Python with Django/Flask\n- PHP with Laravel\n\n**Best Practices:**\n- Responsive design\n- Performance optimization\n- SEO considerations\n- Accessibility (WCAG guidelines)\n\nWhat type of website are you planning to build?";
+            }
+            
+            if (message.includes('business') || message.includes('startup') || message.includes('entrepreneur')) {
+                return "Business strategy is crucial for success! Here's a framework:\n\n**Key Business Elements:**\n1. **Value Proposition** - What unique value do you provide?\n2. **Target Market** - Who are your ideal customers?\n3. **Revenue Model** - How will you make money?\n4. **Competitive Advantage** - What sets you apart?\n\n**Startup Tips:**\n- Validate your idea early\n- Focus on customer feedback\n- Build an MVP (Minimum Viable Product)\n- Iterate based on data\n\nWhat business challenge are you facing?";
+            }
+            
+            // Default intelligent response
+            const defaultResponses = [
+                `That's a thoughtful question about "${userMessage}". Let me share some insights:\n\n**Key Considerations:**\n- Understanding the context and requirements\n- Exploring different approaches and solutions\n- Considering best practices and potential challenges\n\n**My Recommendation:**\nBased on current knowledge and experience, I'd suggest taking a systematic approach. Would you like me to elaborate on any specific aspect?`,
+                
+                `Interesting topic! Here's how I'd approach "${userMessage}":\n\n**Analysis:**\nThis involves several important factors that we should consider carefully.\n\n**Practical Steps:**\n1. Define clear objectives\n2. Research available options\n3. Consider pros and cons\n4. Make an informed decision\n\nWhat specific aspect would you like to explore further?`,
+                
+                `Great question! Regarding "${userMessage}", here's what I think:\n\n**Overview:**\nThis is a topic that benefits from both theoretical understanding and practical application.\n\n**Key Points:**\n- Important to consider multiple perspectives\n- Look for evidence-based approaches\n- Consider both short-term and long-term implications\n\nWould you like me to dive deeper into any particular area?`
+            ];
+            
+            return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
         }
 
         // Auto-resize textarea
@@ -189,84 +329,42 @@
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
 
-        // Message creation functions
-        function createUserMessage(content) {
-            return {
-                id: Date.now() + Math.random(),
-                type: 'user',
-                content: content,
-                timestamp: new Date(),
-                bot: getSelectedBot()
-            };
-        }
-
-        function createBotMessage(content, bot, messageId, status = 'complete') {
-            return {
-                id: messageId || Date.now() + Math.random(),
-                type: 'bot',
-                content: content,
-                timestamp: new Date(),
-                bot: bot,
-                status: status,
-                attachments: []
-            };
-        }
-
-        // Render message in UI
-        function renderMessage(message) {
+        // Create message element
+        function createMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message-${message.type}`;
-            messageDiv.setAttribute('data-message-id', message.id);
+            messageDiv.className = `message-animation ${isUser ? 'flex justify-end' : 'flex justify-start'}`;
             
-            if (message.type === 'user') {
+            const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            if (isUser) {
                 messageDiv.innerHTML = `
-                    <div class="flex justify-end">
-                        <div class="max-w-xs sm:max-w-md lg:max-w-lg">
-                            <div class="bg-primary text-white rounded-lg px-4 py-2">
-                                <div class="message-content">${marked.parse(message.content)}</div>
-                            </div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
-                                You • ${message.timestamp.toLocaleTimeString()}
-                            </div>
+                    <div class="max-w-xs sm:max-w-md lg:max-w-lg">
+                        <div class="bg-gradient-to-r from-primary to-secondary text-white rounded-2xl rounded-br-md px-4 py-3 shadow-lg">
+                            <div class="message-content">${marked.parse(content)}</div>
+                        </div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
+                            ${timestamp}
                         </div>
                     </div>
                 `;
             } else {
-                const statusIndicator = message.status === 'incomplete' ? 
-                    '<span class="text-yellow-500 text-xs">●</span>' : 
-                    message.status === 'error' ? 
-                    '<span class="text-red-500 text-xs">●</span>' : 
-                    '<span class="text-green-500 text-xs">●</span>';
-                
                 messageDiv.innerHTML = `
-                    <div class="flex justify-start">
-                        <div class="max-w-xs sm:max-w-md lg:max-w-lg">
-                            <div class="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2">
-                                ${message.status === 'incomplete' && !message.content ? 
-                                    '<div class="flex items-center gap-1"><span>Thinking</span><div class="flex gap-1"><div class="w-1 h-1 bg-gray-400 rounded-full typing-dot"></div><div class="w-1 h-1 bg-gray-400 rounded-full typing-dot"></div><div class="w-1 h-1 bg-gray-400 rounded-full typing-dot"></div></div></div>' :
-                                    `<div class="message-content">${marked.parse(message.content || '')}</div>`
-                                }
-                                ${message.attachments && message.attachments.length > 0 ? `
-                                    <div class="mt-3 space-y-2">
-                                        ${message.attachments.map(att => `
-                                            <div class="border border-gray-200 dark:border-gray-600 rounded p-2">
-                                                ${att.mimeType.startsWith('image/') ? 
-                                                    `<img src="${att.url}" alt="${att.name}" class="max-w-full h-auto rounded">` :
-                                                    `<a href="${att.url}" download="${att.name}" class="text-primary hover:underline flex items-center gap-2">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                                        </svg>
-                                                        ${att.name}
-                                                    </a>`
-                                                }
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                ` : ''}
+                    <div class="max-w-xs sm:max-w-md lg:max-w-2xl">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                </svg>
                             </div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2">
-                                ${statusIndicator}
-                                ${message.bot} • ${message.timestamp.toLocaleTimeString()}
+                            <div class="flex-1">
+                                <div class="bg-card-light dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                                    <div class="message-content">${marked.parse(content)}</div>
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center space-x-2">
+                                    <span>Devtrix AI</span>
+                                    <span>•</span>
+                                    <span>${timestamp}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -276,86 +374,109 @@
             return messageDiv;
         }
 
-        // Add message to conversation and UI
-        function addMessage(message) {
-            // Remove empty state if present
-            const emptyState = messagesArea.querySelector('.text-center');
-            if (emptyState) {
-                messagesArea.innerHTML = '';
-            }
+        // Create typing indicator
+        function createTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'flex justify-start typing-indicator';
+            typingDiv.id = 'typingIndicator';
             
-            currentConversation.push(message);
-            const messageElement = renderMessage(message);
-            messagesArea.appendChild(messageElement);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
+            typingDiv.innerHTML = `
+                <div class="max-w-xs sm:max-w-md lg:max-w-2xl">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                            </svg>
+                        </div>
+                        <div class="bg-card-light dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                            <div class="flex space-x-1">
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return typingDiv;
         }
-
-        // Update existing bot message
-        function updateBotMessage(messageId, content, status, attachments = []) {
-            const messageElement = messagesArea.querySelector(`[data-message-id="${messageId}"]`);
-            if (!messageElement) return;
-            
-            // Update in conversation array
-            const messageIndex = currentConversation.findIndex(m => m.id === messageId);
-            if (messageIndex !== -1) {
-                currentConversation[messageIndex].content = content;
-                currentConversation[messageIndex].status = status;
-                currentConversation[messageIndex].attachments = attachments;
-                
-                // Re-render the message
-                const updatedElement = renderMessage(currentConversation[messageIndex]);
-                messageElement.replaceWith(updatedElement);
-                messagesArea.scrollTop = messagesArea.scrollHeight;
-            }
-        }
-
-        // Register bot response handler
-        window.Poe.registerHandler("chat-handler", (result, context) => {
-            const msg = result.responses[0];
-            
-            if (msg.status === "error") {
-                updateBotMessage(currentBotResponseId, msg.statusText || "An error occurred", "error");
-                isWaitingForResponse = false;
-                sendBtn.disabled = false;
-            } else if (msg.status === "incomplete") {
-                updateBotMessage(currentBotResponseId, msg.content, "incomplete", msg.attachments || []);
-            } else if (msg.status === "complete") {
-                updateBotMessage(currentBotResponseId, msg.content, "complete", msg.attachments || []);
-                isWaitingForResponse = false;
-                sendBtn.disabled = false;
-            }
-        });
 
         // Send message function
         async function sendMessage(content) {
-            if (!content.trim() || isWaitingForResponse) return;
+            if (!content.trim() || isTyping) return;
             
-            const bot = getSelectedBot();
-            const userMessage = createUserMessage(content);
-            addMessage(userMessage);
-            
-            // Create placeholder bot message
-            currentBotResponseId = Date.now() + Math.random();
-            const botMessage = createBotMessage("", bot, currentBotResponseId, "incomplete");
-            addMessage(botMessage);
-            
-            isWaitingForResponse = true;
-            sendBtn.disabled = true;
-            
-            try {
-                const prompt = `@${bot} Hi my name is Exton I was created by devtrix team and poe. ${content}`;
-                await window.Poe.sendUserMessage(prompt, {
-                    handler: "chat-handler",
-                    stream: true,
-                    openChat: false
-                });
-            } catch (err) {
-                console.error("Error sending message:", err);
-                updateBotMessage(currentBotResponseId, `Error: ${err.message || 'Failed to send message'}`, "error");
-                isWaitingForResponse = false;
-                sendBtn.disabled = false;
+            // Remove welcome message if present
+            const welcomeMessage = messagesContainer.querySelector('.text-center');
+            if (welcomeMessage) {
+                welcomeMessage.remove();
             }
+            
+            // Add user message
+            const userMessage = createMessage(content, true);
+            messagesContainer.appendChild(userMessage);
+            
+            // Add to conversation history
+            conversationHistory.push({type: 'user', content});
+            
+            // Show typing indicator
+            isTyping = true;
+            sendBtn.disabled = true;
+            const typingIndicator = createTypingIndicator();
+            messagesContainer.appendChild(typingIndicator);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Simulate AI thinking time
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+            
+            // Remove typing indicator
+            typingIndicator.remove();
+            
+            // Generate and add AI response
+            const response = generateResponse(content);
+            const aiMessage = createMessage(response, false);
+            messagesContainer.appendChild(aiMessage);
+            
+            // Add to conversation history
+            conversationHistory.push({type: 'assistant', content: response});
+            
+            // Reset state
+            isTyping = false;
+            sendBtn.disabled = false;
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
+
+        // Quick action handlers
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.quick-action')) {
+                const action = e.target.closest('.quick-action');
+                const actionText = action.querySelector('.font-medium').textContent;
+                
+                let prompt = '';
+                switch(actionText) {
+                    case 'Ask a Question':
+                        prompt = 'I have a question about ';
+                        break;
+                    case 'Code Help':
+                        prompt = 'Can you help me with coding? I need assistance with ';
+                        break;
+                    case 'Creative Writing':
+                        prompt = 'I need help with creative writing. Can you help me ';
+                        break;
+                    case 'Data Analysis':
+                        prompt = 'I need help analyzing data. Can you explain ';
+                        break;
+                }
+                
+                messageInput.value = prompt;
+                messageInput.focus();
+                messageInput.setSelectionRange(prompt.length, prompt.length);
+            }
+        });
 
         // Form submission
         document.getElementById('messageForm').addEventListener('submit', (e) => {
@@ -375,6 +496,80 @@
                 document.getElementById('messageForm').dispatchEvent(new Event('submit'));
             }
         });
+
+        // Clear chat
+        clearChatBtn.addEventListener('click', () => {
+            conversationHistory = [];
+            messagesContainer.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Welcome to Devtrix AI</h2>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">I'm your intelligent assistant. Ask me anything!</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
+                        <button class="quick-action p-4 bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 text-left">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-100">Ask a Question</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Get answers to any topic</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="quick-action p-4 bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 text-left">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-100">Code Help</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Programming assistance</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="quick-action p-4 bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 text-left">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-100">Creative Writing</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Stories, essays, content</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="quick-action p-4 bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 text-left">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-100">Data Analysis</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Insights and explanations</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
     </script>
 </body>
-</html>
+    </html>
