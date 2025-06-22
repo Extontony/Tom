@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poe Bot Tester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        'bg-light': '#FFFFFF',
+                        'bg-dark': '#181818'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .message-content p { margin-bottom: 0.5rem; }
+        .message-content p:last-child { margin-bottom: 0; }
+        .message-content ul, .message-content ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+        .message-content code { background: rgba(0,0,0,0.1); padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-size: 0.875rem; }
+        .message-content pre { background: rgba(0,0,0,0.1); padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 0.5rem 0; }
+        .message-content blockquote { border-left: 4px solid #5D5CDE; padding-left: 1rem; margin: 0.5rem 0; opacity: 0.8; }
+        .dark .message-content code, .dark .message-content pre { background: rgba(255,255,255,0.1); }
+        
+        .chat-container { height: calc(100vh - 200px); min-height: 400px; }
+        .messages-area { height: calc(100% - 80px); }
+        
+        @keyframes pulse-dot {
+            0%, 20% { opacity: 0; }
+            50% { opacity: 1; }
+            80%, 100% { opacity: 0; }
+        }
+        .typing-dot:nth-child(1) { animation: pulse-dot 1.5s infinite 0s; }
+        .typing-dot:nth-child(2) { animation: pulse-dot 1.5s infinite 0.2s; }
+        .typing-dot:nth-child(3) { animation: pulse-dot 1.5s infinite 0.4s; }
+    </style>
+</head>
+<body class="bg-bg-light dark:bg-bg-dark text-gray-900 dark:text-gray-100 transition-colors">
+    <div class="h-screen flex flex-col">
+        <!-- Header -->
+        <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent">
+                        Poe Bot Tester
+                    </h1>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Test and interact with Poe bots</p>
+                </div>
+                
+                <!-- Bot Selection -->
+                <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+                    <label for="botSelect" class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                        Select Bot:
+                    </label>
+                    <div class="flex gap-2">
+                        <select id="botSelect" class="px-3 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            <option value="Claude-Sonnet-4">Claude-Sonnet-4</option>
+                            <option value="GPT-4o">GPT-4o</option>
+                            <option value="GPT-4o-mini">GPT-4o-mini</option>
+                            <option value="GPT-Image-1">GPT-Image-1</option>
+                            <option value="FLUX-pro-1.1">FLUX-pro-1.1</option>
+                            <option value="FLUX-schnell">FLUX-schnell</option>
+                            <option value="ElevenLabs">ElevenLabs</option>
+                            <option value="Gemini-2.0-Flash">Gemini-2.0-Flash</option>
+                            <option value="custom">Custom Bot...</option>
+                        </select>
+                        <button id="clearChat" class="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm">
+                            Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Custom Bot Input -->
+            <div id="customBotContainer" class="hidden mt-4">
+                <input 
+                    type="text" 
+                    id="customBotInput" 
+                    placeholder="Enter custom bot handle (e.g., my-custom-bot)"
+                    class="w-full px-3 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                >
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="flex-1 flex flex-col chat-container">
+            <!-- Messages Area -->
+            <div id="messagesArea" class="flex-1 overflow-y-auto p-4 space-y-4 messages-area">
+                <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                    <div class="text-4xl mb-2">🤖</div>
+                    <p>Select a bot and start chatting!</p>
+                    <p class="text-sm mt-1">Your messages will appear here</p>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
+                <form id="messageForm" class="flex gap-3">
+                    <div class="flex-1">
+                        <textarea 
+                            id="messageInput" 
+                            placeholder="Type your message here..." 
+                            rows="1"
+                            class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 resize-none"
+                            style="min-height: 50px; max-height: 120px;"
+                        ></textarea>
+                    </div>
+                    <button 
+                        type="submit" 
+                        id="sendBtn"
+                        class="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                        Send
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // State management
+        let currentConversation = [];
+        let isWaitingForResponse = false;
+        let currentBotResponseId = null;
+
+        // DOM elements
+        const messagesArea = document.getElementById('messagesArea');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const botSelect = document.getElementById('botSelect');
+        const customBotContainer = document.getElementById('customBotContainer');
+        const customBotInput = document.getElementById('customBotInput');
+        const clearChatBtn = document.getElementById('clearChat');
+
+        // Bot selection handler
+        botSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'custom') {
+                customBotContainer.classList.remove('hidden');
+                customBotInput.focus();
+            } else {
+                customBotContainer.classList.add('hidden');
+            }
+        });
+
+        // Clear chat handler
+        clearChatBtn.addEventListener('click', () => {
+            currentConversation = [];
+            messagesArea.innerHTML = `
+                <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                    <div class="text-4xl mb-2">🤖</div>
+                    <p>Select a bot and start chatting!</p>
+                    <p class="text-sm mt-1">Your messages will appear here</p>
+                </div>
+            `;
+        });
+
+        // Get selected bot
+        function getSelectedBot() {
+            if (botSelect.value === 'custom') {
+                return customBotInput.value.trim() || 'Claude-Sonnet-4';
+            }
+            return botSelect.value;
+        }
+
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Message creation functions
+        function createUserMessage(content) {
+            return {
+                id: Date.now() + Math.random(),
+                type: 'user',
+                content: content,
+                timestamp: new Date(),
+                bot: getSelectedBot()
+            };
+        }
+
+        function createBotMessage(content, bot, messageId, status = 'complete') {
+            return {
+                id: messageId || Date.now() + Math.random(),
+                type: 'bot',
+                content: content,
+                timestamp: new Date(),
+                bot: bot,
+                status: status,
+                attachments: []
+            };
+        }
+
+        // Render message in UI
+        function renderMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message-${message.type}`;
+            messageDiv.setAttribute('data-message-id', message.id);
+            
+            if (message.type === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="flex justify-end">
+                        <div class="max-w-xs sm:max-w-md lg:max-w-lg">
+                            <div class="bg-primary text-white rounded-lg px-4 py-2">
+                                <div class="message-content">${marked.parse(message.content)}</div>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
+                                You • ${message.timestamp.toLocaleTimeString()}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const statusIndicator = message.status === 'incomplete' ? 
+                    '<span class="text-yellow-500 text-xs">●</span>' : 
+                    message.status === 'error' ? 
+                    '<span class="text-red-500 text-xs">●</span>' : 
+                    '<span class="text-green-500 text-xs">●</span>';
+                
+                messageDiv.innerHTML = `
+                    <div class="flex justify-start">
+                        <div class="max-w-xs sm:max-w-md lg:max-w-lg">
+                            <div class="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2">
+                                ${message.status === 'incomplete' && !message.content ? 
+                                    '<div class="flex items-center gap-1"><span>Thinking</span><div class="flex gap-1"><div class="w-1 h-1 bg-gray-400 rounded-full typing-dot"></div><div class="w-1 h-1 bg-gray-400 rounded-full typing-dot"></div><div class="w-1 h-1 bg-gray-400 rounded-full typing-dot"></div></div></div>' :
+                                    `<div class="message-content">${marked.parse(message.content || '')}</div>`
+                                }
+                                ${message.attachments && message.attachments.length > 0 ? `
+                                    <div class="mt-3 space-y-2">
+                                        ${message.attachments.map(att => `
+                                            <div class="border border-gray-200 dark:border-gray-600 rounded p-2">
+                                                ${att.mimeType.startsWith('image/') ? 
+                                                    `<img src="${att.url}" alt="${att.name}" class="max-w-full h-auto rounded">` :
+                                                    `<a href="${att.url}" download="${att.name}" class="text-primary hover:underline flex items-center gap-2">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                        </svg>
+                                                        ${att.name}
+                                                    </a>`
+                                                }
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2">
+                                ${statusIndicator}
+                                ${message.bot} • ${message.timestamp.toLocaleTimeString()}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            return messageDiv;
+        }
+
+        // Add message to conversation and UI
+        function addMessage(message) {
+            // Remove empty state if present
+            const emptyState = messagesArea.querySelector('.text-center');
+            if (emptyState) {
+                messagesArea.innerHTML = '';
+            }
+            
+            currentConversation.push(message);
+            const messageElement = renderMessage(message);
+            messagesArea.appendChild(messageElement);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        // Update existing bot message
+        function updateBotMessage(messageId, content, status, attachments = []) {
+            const messageElement = messagesArea.querySelector(`[data-message-id="${messageId}"]`);
+            if (!messageElement) return;
+            
+            // Update in conversation array
+            const messageIndex = currentConversation.findIndex(m => m.id === messageId);
+            if (messageIndex !== -1) {
+                currentConversation[messageIndex].content = content;
+                currentConversation[messageIndex].status = status;
+                currentConversation[messageIndex].attachments = attachments;
+                
+                // Re-render the message
+                const updatedElement = renderMessage(currentConversation[messageIndex]);
+                messageElement.replaceWith(updatedElement);
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }
+        }
+
+        // Register bot response handler
+        window.Poe.registerHandler("chat-handler", (result, context) => {
+            const msg = result.responses[0];
+            
+            if (msg.status === "error") {
+                updateBotMessage(currentBotResponseId, msg.statusText || "An error occurred", "error");
+                isWaitingForResponse = false;
+                sendBtn.disabled = false;
+            } else if (msg.status === "incomplete") {
+                updateBotMessage(currentBotResponseId, msg.content, "incomplete", msg.attachments || []);
+            } else if (msg.status === "complete") {
+                updateBotMessage(currentBotResponseId, msg.content, "complete", msg.attachments || []);
+                isWaitingForResponse = false;
+                sendBtn.disabled = false;
+            }
+        });
+
+        // Send message function
+        async function sendMessage(content) {
+            if (!content.trim() || isWaitingForResponse) return;
+            
+            const bot = getSelectedBot();
+            const userMessage = createUserMessage(content);
+            addMessage(userMessage);
+            
+            // Create placeholder bot message
+            currentBotResponseId = Date.now() + Math.random();
+            const botMessage = createBotMessage("", bot, currentBotResponseId, "incomplete");
+            addMessage(botMessage);
+            
+            isWaitingForResponse = true;
+            sendBtn.disabled = true;
+            
+            try {
+                const prompt = `@${bot} Hi my name is Exton I was created by devtrix team and poe. ${content}`;
+                await window.Poe.sendUserMessage(prompt, {
+                    handler: "chat-handler",
+                    stream: true,
+                    openChat: false
+                });
+            } catch (err) {
+                console.error("Error sending message:", err);
+                updateBotMessage(currentBotResponseId, `Error: ${err.message || 'Failed to send message'}`, "error");
+                isWaitingForResponse = false;
+                sendBtn.disabled = false;
+            }
+        }
+
+        // Form submission
+        document.getElementById('messageForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const content = messageInput.value.trim();
+            if (content) {
+                sendMessage(content);
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+            }
+        });
+
+        // Handle Enter key (Shift+Enter for new line)
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('messageForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>
